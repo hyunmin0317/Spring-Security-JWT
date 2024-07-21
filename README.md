@@ -1,6 +1,6 @@
-# Spring-Security-Basic
+# Spring-Security-JWT
 
-> 스프링 시큐리티 기본 (스프링부트 시큐리티 & JWT 강의)
+> 스프링 시큐리티 JWT 서버구축 (스프링부트 시큐리티 & JWT 강의)
 
 <img src="https://github.com/user-attachments/assets/0fff2668-a8b2-4e4c-9b48-504371ef007f" height="180"/>
 
@@ -10,5 +10,5 @@
 
 ## :notebook_with_decorative_cover: 로드맵
 
-- #### 스프링 시큐리티 기본
-- #### [스프링 시큐리티 JWT 서버구축](https://github.com/hyunmin0317/Spring-Security-JWT)
+- #### [스프링 시큐리티 기본](https://github.com/hyunmin0317/Spring-Security-Basic)
+- #### 스프링 시큐리티 JWT 서버구축
