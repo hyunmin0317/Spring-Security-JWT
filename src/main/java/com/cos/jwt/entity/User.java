@@ -6,8 +6,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -25,6 +25,6 @@ public class User {
     private String roles;
 
     public List<String> getRoleList() {
-        return !roles.isEmpty() ? Arrays.asList(roles.split(",")) : new ArrayList<>();
+        return !roles.isEmpty() ? Arrays.asList(roles.split(",")) : Collections.emptyList();
     }
 }
