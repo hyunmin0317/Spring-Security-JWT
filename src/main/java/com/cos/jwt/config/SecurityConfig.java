@@ -23,7 +23,15 @@ public class SecurityConfig {
 
         // 세션 사용 안함
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        
+
+        // 경로별 인가 작업
+        http.authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/api/v1/user/**").authenticated()
+                .requestMatchers("/api/v1//manager/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/v1//admin/**").hasRole("ADMIN")
+                .anyRequest().permitAll()
+        );
+
         return http.build();
     }
 }
