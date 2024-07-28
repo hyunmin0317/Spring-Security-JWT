@@ -1,5 +1,6 @@
 package com.cos.jwt.config;
 
+import com.cos.jwt.filter.JwtFilter;
 import com.cos.jwt.filter.MyFilter3;
 import com.cos.jwt.filter.MyFilter4;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,9 @@ public class SecurityConfig {
         // filter 등록 예시
         http.addFilterBefore(new MyFilter3(), SecurityContextHolderFilter.class);
         http.addFilterAfter(new MyFilter4(), BasicAuthenticationFilter.class);
+
+        // Jwt Filter (with login)
+        http.addFilterBefore(new JwtFilter(), SecurityContextHolderFilter.class);
 
         return http.build();
     }
