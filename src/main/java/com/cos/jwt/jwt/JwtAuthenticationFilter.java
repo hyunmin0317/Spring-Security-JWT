@@ -1,12 +1,20 @@
 package com.cos.jwt.jwt;
 
+import com.cos.jwt.dto.UserDto;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 // 스프링 시큐리티에서 UsernamePasswordAuthenticationFilter 가 있음
 // login 요청으로 username, password 전송 (POST) -> UsernamePasswordAuthenticationFilter 동작 함
@@ -21,14 +29,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         System.out.println("JwtAuthenticationFilter::로그인 시도중");
 
         // 1. username, password 받아서
+        UserDto userDto = getBody(request);
 
-        // 2. 정상 인지 로그인 시도
+        // 2. 로그인 시도
         // authenticationManager 로 로그인 시도 -> PrincipalDetailService 가 호출 loadUserByUsername() 함수 실행
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDto.username(), userDto.password());
 
-        // 3. PrincipalDetails 를 세션에 담음 (권한 관리)
+        return authenticationManager.authenticate(authenticationToken);
+    }
 
-        // 4. JWT 토큰을 만들어 응답
+    // attemptAuthentication 실행 후 인증이 정상적으로 되었으면 successfulAuthentication 함수 실행됨
+    // JWT 토큰을 만들어서 request 요청한 사용자에게 JWT 토큰을 response 해주면 됨.
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        System.out.println("successfulAuthentication::인증 완료");
+        super.successfulAuthentication(request, response, chain, authResult);
+    }
 
-        return super.attemptAuthentication(request, response);
+    private UserDto getBody(HttpServletRequest request) {
+        try (InputStream inputStream = request.getInputStream()) {
+            return UserDto.from(inputStream);
+        } catch (IOException e) {
+            throw new AuthenticationServiceException("Error reading request body");
+        }
     }
 }
