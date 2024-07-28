@@ -26,6 +26,7 @@ import java.util.Date;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final JwtProperties jwtProperties;
 
     // login 요청을 하면 로그인 시도를 위해서 실행되는 함수
     @Override
@@ -51,11 +52,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String jwtToken = JWT.create()
                 .withSubject(principalDetails.getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + (60000 * 10))) // 10분
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getExpirationTime()))
                 .withClaim("username", principalDetails.getUsername())
-                .sign(Algorithm.HMAC512("cos"));
+                .sign(Algorithm.HMAC512(jwtProperties.getSecret()));
 
-        response.addHeader("Authorization", "Bearer " + jwtToken);
+        response.addHeader(jwtProperties.getHeaderString(), jwtProperties.getTokenPrefix() + jwtToken);
     }
 
     private UserDto getBody(HttpServletRequest request) {
