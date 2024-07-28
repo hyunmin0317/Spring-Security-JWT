@@ -7,7 +7,6 @@ import com.cos.jwt.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,12 +24,7 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
 
     private final CorsFilter corsFilter;
-    private final AuthenticationManager authenticationManager;
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
-    }
+    private final AuthenticationConfiguration configuration;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -63,7 +57,7 @@ public class SecurityConfig {
         http.addFilterAfter(new MyFilter4(), BasicAuthenticationFilter.class);
 
         // AuthenticationManager
-        http.addFilterAt(new JwtAuthenticationFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new JwtAuthenticationFilter(configuration.getAuthenticationManager()), UsernamePasswordAuthenticationFilter.class);
 
         // Jwt Filter (with login)
         http.addFilterBefore(new JwtFilter(), SecurityContextHolderFilter.class);
