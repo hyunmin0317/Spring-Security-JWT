@@ -1,5 +1,7 @@
 package com.cos.jwt.config;
 
+import com.cos.jwt.filter.MyFilter3;
+import com.cos.jwt.filter.MyFilter4;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -42,6 +46,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1//admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
         );
+
+        // filter 등록 예시
+        http.addFilterBefore(new MyFilter3(), SecurityContextHolderFilter.class);
+        http.addFilterAfter(new MyFilter4(), BasicAuthenticationFilter.class);
 
         return http.build();
     }
