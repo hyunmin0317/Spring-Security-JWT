@@ -1,12 +1,13 @@
 package com.cos.jwt.config;
 
-import com.cos.jwt.filter.JwtFilter;
-import com.cos.jwt.filter.MyFilter3;
-import com.cos.jwt.filter.MyFilter4;
 import com.cos.jwt.jwt.JwtAuthenticationFilter;
+import com.cos.jwt.jwt.JwtAuthorizationFilter;
+import com.cos.jwt.jwt.JwtProperties;
+import com.cos.jwt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,9 +15,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.web.filter.CorsFilter;
 
 @Configuration
@@ -26,6 +24,8 @@ public class SecurityConfig {
 
     private final CorsFilter corsFilter;
     private final AuthenticationConfiguration configuration;
+    private final UserRepository userRepository;
+    private final JwtProperties jwtProperties;
 
     @Bean
     public BCryptPasswordEncoder encoder() {
@@ -53,20 +53,20 @@ public class SecurityConfig {
         // 경로별 인가 작업
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/v1/user/**").authenticated()
-                .requestMatchers("/api/v1//manager/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers("/api/v1//admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/manager/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
         );
 
         // filter 등록 예시
-        http.addFilterBefore(new MyFilter3(), SecurityContextHolderFilter.class);
-        http.addFilterAfter(new MyFilter4(), BasicAuthenticationFilter.class);
-
-        // AuthenticationManager
-        http.addFilterAt(new JwtAuthenticationFilter(configuration.getAuthenticationManager()), UsernamePasswordAuthenticationFilter.class);
+//        http.addFilterBefore(new MyFilter3(), SecurityContextHolderFilter.class);
+//        http.addFilterAfter(new MyFilter4(), BasicAuthenticationFilter.class);
+//        http.addFilterBefore(new JwtFilter(), SecurityContextHolderFilter.class);
 
         // Jwt Filter (with login)
-        http.addFilterBefore(new JwtFilter(), SecurityContextHolderFilter.class);
+        AuthenticationManager authenticationManager = configuration.getAuthenticationManager();
+        http.addFilter(new JwtAuthenticationFilter(authenticationManager, jwtProperties));
+        http.addFilter(new JwtAuthorizationFilter(authenticationManager, userRepository, jwtProperties));
 
         return http.build();
     }

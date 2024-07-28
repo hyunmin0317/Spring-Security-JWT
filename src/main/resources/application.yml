@@ -20,3 +20,9 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: true
+
+jwt:
+  secret: "cos"
+  expiration-time: 1800000 # 30분 (밀리초 단위)
+  token-prefix: "Bearer "
+  header-string: "Authorization"
